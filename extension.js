@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+const ollama = require('Ollama');
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -17,11 +18,40 @@ function activate(context) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with  registerCommand
 	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('local-ai.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from local_ai!');
+	const disposable = vscode.commands.registerCommand('local-ai.start', function () {
+		const panel = vscode.window.createWebviewPanel(
+			'deeptChat',
+			'Deep Seek Chat',
+			vscode.ViewColumn.One,
+			{ enableScripts: true }
+		)
+		
+		panel.webview.html = getWebviewContent();
+
+		panel.webview.onDidReceiveMessage(async(message)=> {
+			if (message.command === 'chat') {
+				const userPrompt = message.text;
+				let responseText = '';
+
+				try {
+					const streamResponse = await ollama.default.chat({
+						model: 'deepseek-r1:1.5b',
+						messages: [{role:'user', content: userPrompt}],
+						stream: true
+					})
+
+					for await (const part of streamResponse){
+						responseText += part.message.content;
+						panel.webview.postMessage({ command: 'chatResponse', text: responseText });
+					}
+				}
+				catch(error){
+					console.log('error here')
+					panel.webview.postMessage({ command: 'chatResponse', text: 'Error:' + error.message})
+				}
+			}
+		})
 	});
 
 	context.subscriptions.push(disposable);
@@ -29,6 +59,41 @@ function activate(context) {
 
 // This method is called when your extension is deactivated
 function deactivate() {}
+
+function getWebviewContent(){
+	return /*html*/`
+		<!DOCTYPE html>
+		<html lang="en">
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+		</head>
+		<body>
+			<h5>AI CHATBOX:</h5>
+			<textarea id="prompt" name="largeText" class="form-control" rows="8" placeholder="Prompt here..."></textarea>
+			<button id="submitBtn" type="submit" class="btn btn-primary w-100">Submit</button>
+			<div id="response"></div>
+
+			<script>
+				const vscode = acquireVsCodeApi();
+
+				document.getElementById('submitBtn').addEventListener('click', () => {
+					const text = document.getElementById('prompt').value;
+					vscode.postMessage({ command: 'chat', text });
+					console.log('should send message');
+				});
+
+				window.addEventListener('message', event => {
+					const { command, text } = event.data;
+					if (command === 'chatResponse'){
+						document.getElementById('response').innerText = text;
+					}
+				});
+			</script>
+		</body>
+		</html>
+	`
+}
 
 module.exports = {
 	activate,

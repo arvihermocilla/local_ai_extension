@@ -1,4 +1,5 @@
 {
+  "type": "commonjs",
   "name": "local-ai",
   "displayName": "local_ai",
   "description": "runs a local llm model using ollama",
@@ -12,10 +13,16 @@
   "activationEvents": [],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "local-ai.helloWorld",
-      "title": "Hello World"
-    }]
+    "commands": [
+      {
+        "command": "local-ai.start",
+        "title": "Local AI CHAT"
+      },
+      {
+        "command": "local-ai.helloWorld",
+        "title": "helloWorld"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
@@ -23,11 +30,14 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.99.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
-    "eslint": "^9.23.0",
+    "@types/vscode": "^1.99.0",
     "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.23.0"
+  },
+  "dependencies": {
+    "ollama": "^0.5.15"
   }
 }
