@@ -21,8 +21,8 @@ function activate(context) {
 
 	const disposable = vscode.commands.registerCommand('local-ai.start', function () {
 		const panel = vscode.window.createWebviewPanel(
-			'deeptChat',
-			'Deep Seek Chat',
+			'aiChat',
+			'AI Chat',
 			vscode.ViewColumn.One,
 			{ enableScripts: true }
 		)
@@ -36,7 +36,7 @@ function activate(context) {
 
 				try {
 					const streamResponse = await ollama.default.chat({
-						model: 'deepseek-r1:1.5b',
+						model: 'codellama:7b', // best to use deepseek-r1:1.5b or other lightweight models
 						messages: [{role:'user', content: userPrompt}],
 						stream: true
 					})
