@@ -70,7 +70,7 @@ function getWebviewContent(){
 		</head>
 		<body>
 			<h5>AI CHATBOX:</h5>
-			<textarea id="prompt" name="largeText" class="form-control" rows="8" placeholder="Prompt here..."></textarea>
+			<textarea id="prompt" name="largeText" class="form-control" rows="10" style="width: 100%; max-width: 800px;" placeholder="Prompt here..."></textarea><br>
 			<button id="submitBtn" type="submit" class="btn btn-primary w-100">Submit</button>
 			<div id="response"></div>
 
